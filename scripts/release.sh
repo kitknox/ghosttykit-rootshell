@@ -141,7 +141,7 @@ import PackageDescription
 
 let package = Package(
     name: "ghosttykit-rootshell",
-    platforms: [.iOS(.v18), .macCatalyst(.v18), .visionOS(.v2)],
+    platforms: [.iOS(.v17), .macCatalyst(.v17), .visionOS(.v1)],
     products: [
         .library(name: "GhosttyKitAppStore", targets: ["GhosttyKitAppStore"]),
         .library(name: "GhosttyKitStandalone", targets: ["GhosttyKitStandalone"]),

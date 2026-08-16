@@ -1,7 +1,23 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
-// Binary products are populated by scripts/release.sh when the first release
-// is published. Keeping the bootstrap manifest valid makes the repository
-// cloneable before release assets exist.
-let package = Package(name: "ghosttykit-rootshell")
+let package = Package(
+    name: "ghosttykit-rootshell",
+    platforms: [.iOS(.v17), .macCatalyst(.v17), .visionOS(.v1)],
+    products: [
+        .library(name: "GhosttyKitAppStore", targets: ["GhosttyKitAppStore"]),
+        .library(name: "GhosttyKitStandalone", targets: ["GhosttyKitStandalone"]),
+    ],
+    targets: [
+        .binaryTarget(
+            name: "GhosttyKitAppStore",
+            url: "https://api.github.com/repos/kitknox/ghosttykit-rootshell/releases/assets/516983266.zip",
+            checksum: "855b3a2feb62258b525347e6d4491d7342e82c65f97ef590b8a653ef406451f9"
+        ),
+        .binaryTarget(
+            name: "GhosttyKitStandalone",
+            url: "https://api.github.com/repos/kitknox/ghosttykit-rootshell/releases/assets/516983265.zip",
+            checksum: "a72140c3f897703024eccb56022462a6e3eedad41caa158fa64fdaf86fde9d6c"
+        ),
+    ]
+)
