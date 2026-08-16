@@ -6,7 +6,7 @@ PACKAGE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 VERSION="${1:-}"
 if [[ -z "$VERSION" ]]; then
-    echo "Usage: $0 <version> [--rootshell-source <path>] [--ghostty-source <path>] [--zig <path>]" >&2
+    echo "Usage: $0 <version> [--rootshell-source <path>] [--ghostty-source <path>] [--zig <path>] [--skip-build]" >&2
     exit 1
 fi
 shift
@@ -14,6 +14,7 @@ shift
 ROOTSHELL_SOURCE="${ROOTSHELL_SOURCE_DIR:-}"
 GHOSTTY_SOURCE="${GHOSTTY_SOURCE_DIR:-}"
 ZIG_BIN="${ZIG_BIN:-}"
+SKIP_BUILD=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -28,6 +29,10 @@ while [[ $# -gt 0 ]]; do
         --zig)
             ZIG_BIN="${2:-}"
             shift 2
+            ;;
+        --skip-build)
+            SKIP_BUILD=true
+            shift
             ;;
         *)
             echo "ERROR: unknown option: $1" >&2
@@ -75,11 +80,13 @@ if git -C "$PACKAGE_DIR" rev-parse "$TAG" >/dev/null 2>&1; then
 fi
 gh auth status >/dev/null
 
-BUILD_ARGS=(all --ghostty-source "$GHOSTTY_SOURCE" --clean)
-if [[ -n "$ZIG_BIN" ]]; then
-    BUILD_ARGS+=(--zig "$ZIG_BIN")
+if [[ "$SKIP_BUILD" == false ]]; then
+    BUILD_ARGS=(all --ghostty-source "$GHOSTTY_SOURCE" --clean)
+    if [[ -n "$ZIG_BIN" ]]; then
+        BUILD_ARGS+=(--zig "$ZIG_BIN")
+    fi
+    "$ROOTSHELL_SOURCE/scripts/build-framework.sh" "${BUILD_ARGS[@]}"
 fi
-"$ROOTSHELL_SOURCE/scripts/build-framework.sh" "${BUILD_ARGS[@]}"
 
 LOCAL_PACKAGE="$ROOTSHELL_SOURCE/.local-packages/ghosttykit-rootshell"
 APPSTORE_ID="$(<"$LOCAL_PACKAGE/Artifacts/AppStore/current")"
@@ -99,17 +106,29 @@ APPSTORE_CHECKSUM="$(swift package compute-checksum "$APPSTORE_ZIP")"
 STANDALONE_CHECKSUM="$(swift package compute-checksum "$STANDALONE_ZIP")"
 GHOSTTY_REVISION="$(git -C "$GHOSTTY_SOURCE" rev-parse HEAD)"
 
-gh release create "$TAG" "$APPSTORE_ZIP" "$STANDALONE_ZIP" \
-    --repo kitknox/ghosttykit-rootshell \
-    --draft \
-    --title "GhosttyKit $VERSION" \
-    --notes "Zig Ghostty revision: $GHOSTTY_REVISION"
+RELEASE_ID="$(gh api repos/kitknox/ghosttykit-rootshell/releases \
+    --jq "map(select(.tag_name == \"$TAG\" and .draft == true))[0].id // empty")"
+if [[ -z "$RELEASE_ID" ]]; then
+    gh release create "$TAG" "$APPSTORE_ZIP" "$STANDALONE_ZIP" \
+        --repo kitknox/ghosttykit-rootshell \
+        --draft \
+        --title "GhosttyKit $VERSION" \
+        --notes "Zig Ghostty revision: $GHOSTTY_REVISION"
+    RELEASE_ID="$(gh api repos/kitknox/ghosttykit-rootshell/releases \
+        --jq "map(select(.tag_name == \"$TAG\" and .draft == true))[0].id // empty")"
+else
+    echo "Resuming draft release $TAG ($RELEASE_ID)"
+fi
+if [[ -z "$RELEASE_ID" ]]; then
+    echo "ERROR: could not determine GitHub draft release ID" >&2
+    exit 1
+fi
 
 APPSTORE_ASSET_ID="$(gh api \
-    "repos/kitknox/ghosttykit-rootshell/releases/tags/$TAG" \
+    "repos/kitknox/ghosttykit-rootshell/releases/$RELEASE_ID" \
     --jq '.assets[] | select(.name == "GhosttyKitAppStore.xcframework.zip") | .id')"
 STANDALONE_ASSET_ID="$(gh api \
-    "repos/kitknox/ghosttykit-rootshell/releases/tags/$TAG" \
+    "repos/kitknox/ghosttykit-rootshell/releases/$RELEASE_ID" \
     --jq '.assets[] | select(.name == "GhosttyKitStandalone.xcframework.zip") | .id')"
 if [[ -z "$APPSTORE_ASSET_ID" || -z "$STANDALONE_ASSET_ID" ]]; then
     echo "ERROR: could not determine uploaded GitHub asset IDs; draft release was retained" >&2
