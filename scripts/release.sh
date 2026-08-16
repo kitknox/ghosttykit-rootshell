@@ -70,6 +70,10 @@ for command in git gh ditto swift; do
         exit 1
     fi
 done
+if [[ -n "$(git -C "$GHOSTTY_SOURCE" status --porcelain)" ]]; then
+    echo "ERROR: Ghostty source repository must be clean before publishing" >&2
+    exit 1
+fi
 if [[ -n "$(git -C "$PACKAGE_DIR" status --porcelain)" ]]; then
     echo "ERROR: package repository must be clean before publishing" >&2
     exit 1
