@@ -105,9 +105,12 @@ gh release create "$TAG" "$APPSTORE_ZIP" "$STANDALONE_ZIP" \
     --title "GhosttyKit $VERSION" \
     --notes "Zig Ghostty revision: $GHOSTTY_REVISION"
 
-RELEASE_JSON="$(gh api "repos/kitknox/ghosttykit-rootshell/releases/tags/$TAG")"
-APPSTORE_ASSET_ID="$(sed -n 's/.*"id":\([0-9][0-9]*\).*"name":"GhosttyKitAppStore\.xcframework\.zip".*/\1/p' <<<"${RELEASE_JSON//$'\n'/}")"
-STANDALONE_ASSET_ID="$(sed -n 's/.*"id":\([0-9][0-9]*\).*"name":"GhosttyKitStandalone\.xcframework\.zip".*/\1/p' <<<"${RELEASE_JSON//$'\n'/}")"
+APPSTORE_ASSET_ID="$(gh api \
+    "repos/kitknox/ghosttykit-rootshell/releases/tags/$TAG" \
+    --jq '.assets[] | select(.name == "GhosttyKitAppStore.xcframework.zip") | .id')"
+STANDALONE_ASSET_ID="$(gh api \
+    "repos/kitknox/ghosttykit-rootshell/releases/tags/$TAG" \
+    --jq '.assets[] | select(.name == "GhosttyKitStandalone.xcframework.zip") | .id')"
 if [[ -z "$APPSTORE_ASSET_ID" || -z "$STANDALONE_ASSET_ID" ]]; then
     echo "ERROR: could not determine uploaded GitHub asset IDs; draft release was retained" >&2
     exit 1
