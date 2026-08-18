@@ -128,14 +128,14 @@ if [[ -z "$RELEASE_ID" ]]; then
     exit 1
 fi
 
-APPSTORE_ASSET_ID="$(gh api \
+APPSTORE_ASSET_COUNT="$(gh api \
     "repos/kitknox/ghosttykit-rootshell/releases/$RELEASE_ID" \
-    --jq '.assets[] | select(.name == "GhosttyKitAppStore.xcframework.zip") | .id')"
-STANDALONE_ASSET_ID="$(gh api \
+    --jq '[.assets[] | select(.name == "GhosttyKitAppStore.xcframework.zip")] | length')"
+STANDALONE_ASSET_COUNT="$(gh api \
     "repos/kitknox/ghosttykit-rootshell/releases/$RELEASE_ID" \
-    --jq '.assets[] | select(.name == "GhosttyKitStandalone.xcframework.zip") | .id')"
-if [[ -z "$APPSTORE_ASSET_ID" || -z "$STANDALONE_ASSET_ID" ]]; then
-    echo "ERROR: could not determine uploaded GitHub asset IDs; draft release was retained" >&2
+    --jq '[.assets[] | select(.name == "GhosttyKitStandalone.xcframework.zip")] | length')"
+if [[ "$APPSTORE_ASSET_COUNT" != 1 || "$STANDALONE_ASSET_COUNT" != 1 ]]; then
+    echo "ERROR: expected release assets were not uploaded exactly once; draft release was retained" >&2
     exit 1
 fi
 
@@ -153,12 +153,12 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "GhosttyKitAppStore",
-            url: "https://api.github.com/repos/kitknox/ghosttykit-rootshell/releases/assets/$APPSTORE_ASSET_ID.zip",
+            url: "https://github.com/kitknox/ghosttykit-rootshell/releases/download/$TAG/GhosttyKitAppStore.xcframework.zip",
             checksum: "$APPSTORE_CHECKSUM"
         ),
         .binaryTarget(
             name: "GhosttyKitStandalone",
-            url: "https://api.github.com/repos/kitknox/ghosttykit-rootshell/releases/assets/$STANDALONE_ASSET_ID.zip",
+            url: "https://github.com/kitknox/ghosttykit-rootshell/releases/download/$TAG/GhosttyKitStandalone.xcframework.zip",
             checksum: "$STANDALONE_CHECKSUM"
         ),
     ]
