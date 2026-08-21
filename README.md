@@ -24,7 +24,7 @@ Add the package over HTTPS and pin an exact release:
 ```swift
 .package(
     url: "https://github.com/kitknox/ghosttykit-rootshell.git",
-    exact: "0.1.1"
+    exact: "0.2.0"
 )
 ```
 
@@ -43,10 +43,10 @@ precedence over environment variables and sibling checkout fallbacks.
 ```
 
 Environment alternatives are `ROOTSHELL_SOURCE_DIR` and
-`GHOSTTY_SOURCE_DIR`. With sibling checkouts named `ghostty-ios` and `ghostty`,
+`GHOSTTY_SOURCE_DIR`. With sibling checkouts named `rootshell` and `ghostty`,
 the options can be omitted.
 
-Publishing requires Zig 0.15.x, Xcode command-line tools, authenticated `git`
+Publishing requires Zig 0.16.x, Xcode command-line tools, authenticated `git`
 access, and an authenticated GitHub CLI. The script builds and audits both
 artifacts, creates a draft release, updates checksums and public release URLs,
 commits and tags the manifest, pushes it, and then publishes the release.

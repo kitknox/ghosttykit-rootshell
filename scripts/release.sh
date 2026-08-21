@@ -47,8 +47,8 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 TAG="v$VERSION"
 
-if [[ -z "$ROOTSHELL_SOURCE" && -f "$PACKAGE_DIR/../ghostty-ios/scripts/build-framework.sh" ]]; then
-    ROOTSHELL_SOURCE="$PACKAGE_DIR/../ghostty-ios"
+if [[ -z "$ROOTSHELL_SOURCE" && -f "$PACKAGE_DIR/../rootshell/scripts/build-framework.sh" ]]; then
+    ROOTSHELL_SOURCE="$PACKAGE_DIR/../rootshell"
 fi
 if [[ -z "$GHOSTTY_SOURCE" && -f "$PACKAGE_DIR/../ghostty/build.zig" ]]; then
     GHOSTTY_SOURCE="$PACKAGE_DIR/../ghostty"
