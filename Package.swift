@@ -11,13 +11,13 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "GhosttyKitAppStore",
-            url: "https://github.com/kitknox/ghosttykit-rootshell/releases/download/v0.2.16/GhosttyKitAppStore.xcframework.zip",
-            checksum: "b587855b572727b407a983fe3c333b13331badef9c5c7cd3c7800e68685ba109"
+            url: "https://github.com/kitknox/ghosttykit-rootshell/releases/download/v0.2.17/GhosttyKitAppStore.xcframework.zip",
+            checksum: "46f21892ca856ca25778b0469c93694d17ce06e21f2da2267d4601d5c2e8fffe"
         ),
         .binaryTarget(
             name: "GhosttyKitStandalone",
-            url: "https://github.com/kitknox/ghosttykit-rootshell/releases/download/v0.2.16/GhosttyKitStandalone.xcframework.zip",
-            checksum: "b71787c8a93e04d85110a2ba1e56ee226194cd448484bebdaf0baf5d0e517874"
+            url: "https://github.com/kitknox/ghosttykit-rootshell/releases/download/v0.2.17/GhosttyKitStandalone.xcframework.zip",
+            checksum: "64e1172269305645649fd51f6f39825f88f090746a3ccd6d43051222f1faa2f8"
         ),
     ]
 )
